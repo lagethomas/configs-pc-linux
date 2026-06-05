@@ -20,7 +20,7 @@ CONFIG_FILE="$SS_DIR/config.json"
 PID_FILE="/tmp/ss-local-custom.pid"
 
 # Configurações do seu arquivo gui-config.json
-SERVER_IP="164.152.37.163"
+SERVER_IP="IP_SERVER"
 SERVER_PORT=8080
 PASSWORD="gHOw/5S1M0vwUv7rogAYIofyRC0SEy2N"
 METHOD="aes-256-gcm"
