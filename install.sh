@@ -43,6 +43,14 @@ if [[ ":$PATH:" != *":$HOME/bin:"* ]]; then
     export PATH="$HOME/bin:$PATH"
 fi
 
+# 5. Instalar Atuin (shell history)
+if ! command -v atuin &>/dev/null; then
+    echo "[+] Instalando Atuin (shell history)..."
+    curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh
+else
+    echo "[~] Atuin já instalado (pulando)"
+fi
+
 echo "[OK] Instalação concluída. Recarregando shell..."
 
 exec "$SHELL"
