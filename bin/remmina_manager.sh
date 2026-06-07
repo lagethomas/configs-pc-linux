@@ -16,11 +16,22 @@
 #
 
 # Configurações de Caminhos
-FLATPAK_PATH="$HOME/.var/app/org.remmina.Remmina"
 BACKUP_DIR="$HOME/backups_remmina"
 mkdir -p "$BACKUP_DIR"
 
-echo "--- Gerenciador Remmina (Flatpak) ---"
+# Detectar instalação do Remmina (Flatpak ou nativo)
+if [ -d "$HOME/.var/app/org.remmina.Remmina" ]; then
+    REMMINA_DIR="$HOME/.var/app/org.remmina.Remmina"
+    TIPO="Flatpak"
+elif [ -d "$HOME/.local/share/remmina" ]; then
+    REMMINA_DIR="$HOME/.local/share/remmina"
+    TIPO="nativo"
+else
+    echo "[ERRO] Remmina não encontrado (nem Flatpak, nem nativo)."
+    exit 1
+fi
+
+echo "--- Gerenciador Remmina ($TIPO) ---"
 echo "1) Backup"
 echo "2) Restore"
 echo "3) Sair"
@@ -28,16 +39,11 @@ read -p "Escolha uma opção: " OPCAO
 
 case $OPCAO in
     1)
-        if [ -d "$FLATPAK_PATH" ]; then
-            BACKUP_FILE="$BACKUP_DIR/remmina_backup_$(date +%Y%m%d_%H%M%S).tar.gz"
-            tar -czvf "$BACKUP_FILE" -C "$(dirname "$FLATPAK_PATH")" org.remmina.Remmina
-            echo -e "\n[OK] Backup criado: $BACKUP_FILE"
-        else
-            echo "[ERRO] Pasta do Flatpak não encontrada em $FLATPAK_PATH"
-        fi
+        BACKUP_FILE="$BACKUP_DIR/remmina_backup_$(date +%Y%m%d_%H%M%S).tar.gz"
+        tar -czvf "$BACKUP_FILE" -C "$(dirname "$REMMINA_DIR")" "$(basename "$REMMINA_DIR")"
+        echo -e "\n[OK] Backup criado: $BACKUP_FILE"
         ;;
     2)
-        # Lista arquivos e armazena em um array
         files=($(ls -1 "$BACKUP_DIR"/*.tar.gz 2>/dev/null))
         
         if [ ${#files[@]} -eq 0 ]; then
@@ -54,9 +60,9 @@ case $OPCAO in
         INDEX=$((NUM-1))
 
         if [[ -n "${files[$INDEX]}" ]]; then
-            # Garante que o diretório de destino existe
-            mkdir -p "$HOME/.var/app/"
-            tar -xzvf "${files[$INDEX]}" -C "$HOME/.var/app/"
+            DEST_DIR="$(dirname "$REMMINA_DIR")"
+            mkdir -p "$DEST_DIR"
+            tar -xzvf "${files[$INDEX]}" -C "$DEST_DIR"
             echo -e "\n[OK] Restauração concluída com sucesso."
         else
             echo "[ERRO] Opção inválida."
